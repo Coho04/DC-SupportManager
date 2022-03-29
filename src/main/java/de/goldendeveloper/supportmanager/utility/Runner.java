@@ -1,4 +1,4 @@
-package de.zrazzer.discordbot;
+package de.goldendeveloper.supportmanager.utility;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -12,7 +12,7 @@ public class Runner {
     private final int day;
     private final int minute;
     private final int second;
-    private String runThreadName;
+    private final String runThreadName;
 
     public Runner(Calendar timeOfDay, Runnable dailyTask, String runThreadName) {
         this.dailyTask = dailyTask;
