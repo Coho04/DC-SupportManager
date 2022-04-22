@@ -3,7 +3,7 @@ package de.goldendeveloper.supportmanager;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
-import de.goldendeveloper.supportmanager.events.events;
+import de.goldendeveloper.supportmanager.events.Events;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -35,7 +35,7 @@ public class Discord {
                             GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.GUILD_MEMBERS,
                             GatewayIntent.GUILD_MESSAGE_TYPING)
                     .setActivity(Activity.watching(activity))
-                    .addEventListeners(new events())
+                    .addEventListeners(new Events())
                     .setAutoReconnect(true)
                     .build().awaitReady();
 

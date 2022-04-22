@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class events extends ListenerAdapter {
+public class Events extends ListenerAdapter {
 
     public List<Long> tempChannels = new ArrayList<>();
     public long Role = 817662233537806367L;
