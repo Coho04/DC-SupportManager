@@ -20,7 +20,7 @@ public class CreateMysql {
     public static String colFre = "Freitag";
     public static String colSam = "Samstag";
     public static String colSon = "Sonntag";
-    private MYSQL mysql;
+    private final MYSQL mysql;
 
     public CreateMysql(String hostname, String username, String password, int port) {
         mysql = new MYSQL(hostname, username, password, port);

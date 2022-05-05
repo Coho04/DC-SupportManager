@@ -18,7 +18,6 @@ public class Discord {
     private JDA bot;
     private String activity = "<BOT-Activity>";
 
-
     public static String getCmdSettings = "settings";
     public static String getCmdSettingsSubChannel = "support-voicechannel";
     public static String getCmdSettingsSubShutdown = "shutdown";
@@ -48,15 +47,6 @@ public class Discord {
         } catch (LoginException | InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    public void sendErrorMessage(String Error) {
-        WebhookEmbedBuilder embed = new WebhookEmbedBuilder();
-        embed.setAuthor(new WebhookEmbed.EmbedAuthor(getBot().getSelfUser().getName(), getBot().getSelfUser().getAvatarUrl(), "https://Golden-Developer.de"));
-        embed.addField(new WebhookEmbed.EmbedField(false, "[ERROR]", Error));
-        embed.setColor(0xFF0000);
-        embed.setFooter(new WebhookEmbed.EmbedFooter("@Golden-Developer", getBot().getSelfUser().getAvatarUrl()));
-        new WebhookClientBuilder(Main.getConfig().getDiscordWebhook()).build().send(embed.build());
     }
 
     public JDA getBot() {
