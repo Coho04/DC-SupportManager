@@ -5,7 +5,7 @@ import de.goldendeveloper.mysql.entities.Database;
 import de.goldendeveloper.mysql.entities.MysqlTypes;
 import de.goldendeveloper.mysql.entities.Table;
 
-public class CreateMysql {
+public class MysqlConnection {
 
     public static String dbName = "GD-Support-Manager";
     public static String TableGuilds = "Guilds";
@@ -22,7 +22,7 @@ public class CreateMysql {
     public static String colSon = "Sonntag";
     private final MYSQL mysql;
 
-    public CreateMysql(String hostname, String username, String password, int port) {
+    public MysqlConnection(String hostname, String username, String password, int port) {
         mysql = new MYSQL(hostname, username, password, port);
         if (!mysql.existsDatabase(dbName)) {
             mysql.createDatabase(dbName);

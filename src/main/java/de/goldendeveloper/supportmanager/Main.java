@@ -5,13 +5,13 @@ import de.goldendeveloper.supportmanager.utility.Config;
 public class Main {
 
     private static Discord discord;
-    private static CreateMysql createMysql;
+    private static MysqlConnection mysqlConnection;
     private static Config config;
 
     public static void main(String[] args) {
         config = new Config();
         discord = new Discord(config.getDiscordToken());
-        createMysql = new CreateMysql(config.getMysqlHostname(), config.getMysqlUsername(), config.getMysqlPassword(), config.getMysqlPort());
+        mysqlConnection = new MysqlConnection(config.getMysqlHostname(), config.getMysqlUsername(), config.getMysqlPassword(), config.getMysqlPort());
     }
 
     public static Discord getDiscord() {
@@ -20,7 +20,7 @@ public class Main {
     public static Config getConfig() {
         return config;
     }
-    public static CreateMysql getCreateMysql() {
-        return createMysql;
+    public static MysqlConnection getMysqlConnection() {
+        return mysqlConnection;
     }
 }

@@ -5,7 +5,7 @@ import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import de.goldendeveloper.mysql.entities.RowBuilder;
 import de.goldendeveloper.mysql.entities.Table;
-import de.goldendeveloper.supportmanager.CreateMysql;
+import de.goldendeveloper.supportmanager.MysqlConnection;
 import de.goldendeveloper.supportmanager.Discord;
 import de.goldendeveloper.supportmanager.Main;
 import de.goldendeveloper.supportmanager.utility.Runner;
@@ -34,24 +34,24 @@ public class Events extends ListenerAdapter {
                 if (e.getSubcommandName().equalsIgnoreCase(Discord.getCmdSettingsSubChannel)) {
                     VoiceChannel voiceChannel = e.getOption("channel").getAsVoiceChannel();
                     if (voiceChannel != null) {
-                        if (Main.getCreateMysql().getMysql().existsDatabase(CreateMysql.dbName)) {
-                            if (Main.getCreateMysql().getMysql().getDatabase(CreateMysql.dbName).existsTable(CreateMysql.TableGuilds)) {
-                                Table table = Main.getCreateMysql().getMysql().getDatabase(CreateMysql.dbName).getTable(CreateMysql.TableGuilds);
-                                if (table.existsColumn(CreateMysql.colGuild)) {
-                                    if (table.getColumn(CreateMysql.colGuild).getAll().contains(e.getGuild().getId())) {
-                                        table.getRow(table.getColumn(CreateMysql.colGuild), e.getGuild().getId()).set(table.getColumn(CreateMysql.colSupChannel), e.getGuild().getId());
+                        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
+                            if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.TableGuilds)) {
+                                Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.TableGuilds);
+                                if (table.existsColumn(MysqlConnection.colGuild)) {
+                                    if (table.getColumn(MysqlConnection.colGuild).getAll().contains(e.getGuild().getId())) {
+                                        table.getRow(table.getColumn(MysqlConnection.colGuild), e.getGuild().getId()).set(table.getColumn(MysqlConnection.colSupChannel), e.getGuild().getId());
                                         e.getInteraction().reply("Der Support Channel wurde erfolgreich gesetzt!").queue();
                                     } else {
                                         table.insert(new RowBuilder()
-                                                .with(table.getColumn(CreateMysql.colSupChannel), voiceChannel.getId())
-                                                .with(table.getColumn(CreateMysql.colGuild), e.getGuild().getId())
-                                                .with(table.getColumn(CreateMysql.colMon), "")
-                                                .with(table.getColumn(CreateMysql.colDie), "")
-                                                .with(table.getColumn(CreateMysql.colMit), "")
-                                                .with(table.getColumn(CreateMysql.colDon), "")
-                                                .with(table.getColumn(CreateMysql.colFre), "")
-                                                .with(table.getColumn(CreateMysql.colSam), "")
-                                                .with(table.getColumn(CreateMysql.colSon), "")
+                                                .with(table.getColumn(MysqlConnection.colSupChannel), voiceChannel.getId())
+                                                .with(table.getColumn(MysqlConnection.colGuild), e.getGuild().getId())
+                                                .with(table.getColumn(MysqlConnection.colMon), "")
+                                                .with(table.getColumn(MysqlConnection.colDie), "")
+                                                .with(table.getColumn(MysqlConnection.colMit), "")
+                                                .with(table.getColumn(MysqlConnection.colDon), "")
+                                                .with(table.getColumn(MysqlConnection.colFre), "")
+                                                .with(table.getColumn(MysqlConnection.colSam), "")
+                                                .with(table.getColumn(MysqlConnection.colSon), "")
                                                 .build()
                                         );
                                         e.getInteraction().reply("Der Support Channel wurde erfolgreich gesetzt!").queue();
@@ -87,11 +87,11 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
-        if (Main.getCreateMysql().getMysql().existsDatabase(CreateMysql.dbName)) {
-            if (Main.getCreateMysql().getMysql().getDatabase(CreateMysql.dbName).existsTable(CreateMysql.TableGuilds)) {
-                Table table = Main.getCreateMysql().getMysql().getDatabase(CreateMysql.dbName).getTable(CreateMysql.TableGuilds);
-                if (table.existsColumn(CreateMysql.colSupChannel)) {
-                    if (table.getColumn(CreateMysql.colSupChannel).getAll().contains(event.getChannelJoined().getId())) {
+        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
+            if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.TableGuilds)) {
+                Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.TableGuilds);
+                if (table.existsColumn(MysqlConnection.colSupChannel)) {
+                    if (table.getColumn(MysqlConnection.colSupChannel).getAll().contains(event.getChannelJoined().getId())) {
                         onJoin(event.getChannelJoined(), event.getEntity());
                     }
                 }
@@ -125,7 +125,7 @@ public class Events extends ListenerAdapter {
             try {
                 VoiceChannel channel = Main.getDiscord().getBot().getVoiceChannelById(VoiceChannel);
                 if (channel != null) {
-                    channel.upsertPermissionOverride(role).setAllow(Permission.VOICE_CONNECT).queue();
+                    channel.upsertPermissionOverride(role).setAllowed(Permission.VOICE_CONNECT).queue();
                     channel.getManager().setName("✅Support: Geöffnet✅").putPermissionOverride(role, Arrays.asList(Permission.VOICE_CONNECT), null).submit();
                 }
             } catch (Exception e) {
@@ -151,11 +151,11 @@ public class Events extends ListenerAdapter {
     }
 
     public void onJoin(AudioChannel joined, Member member) {
-        if (Main.getCreateMysql().getMysql().existsDatabase(CreateMysql.dbName)) {
-            if (Main.getCreateMysql().getMysql().getDatabase(CreateMysql.dbName).existsTable(CreateMysql.TableGuilds)) {
-                Table table = Main.getCreateMysql().getMysql().getDatabase(CreateMysql.dbName).getTable(CreateMysql.TableGuilds);
-                if (table.existsColumn(CreateMysql.colSupChannel)) {
-                    if (table.getColumn(CreateMysql.colSupChannel).getAll().contains(joined.getId())) {
+        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
+            if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.TableGuilds)) {
+                Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.TableGuilds);
+                if (table.existsColumn(MysqlConnection.colSupChannel)) {
+                    if (table.getColumn(MysqlConnection.colSupChannel).getAll().contains(joined.getId())) {
                         VoiceChannel ch = joined.getJDA().getVoiceChannelById(joined.getId());
                         if (ch != null) {
                             Category cat = ch.getParentCategory();

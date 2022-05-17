@@ -28,7 +28,7 @@ public class Config {
     }
 
     private void readXML(InputStream inputStream) {
-        this.MysqlHostname = "138.201.202.3";
+        this.MysqlHostname = "127.0.0.1";
         this.MysqlUsername = "root";
         this.MysqlPort = 3306;
 
