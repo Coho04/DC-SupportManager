@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
@@ -19,7 +18,6 @@ import java.util.Properties;
 public class Discord {
 
     private JDA bot;
-    private String activity = "<BOT-Activity>";
 
     public static String getCmdSettings = "settings";
     public static String getCmdSettingsSubChannel = "support-voicechannel";
@@ -27,9 +25,10 @@ public class Discord {
 
     public Discord(String token) {
         try {
+            String activity = "<BOT-Activity>";
             bot = JDABuilder.createDefault(token)
                     .enableIntents(GatewayIntent.GUILD_MESSAGE_REACTIONS,
-                            GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_EMOJIS,
+                            GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                             GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_PRESENCES,
                             GatewayIntent.GUILD_BANS, GatewayIntent.DIRECT_MESSAGE_REACTIONS,
                             GatewayIntent.GUILD_INVITES, GatewayIntent.DIRECT_MESSAGE_TYPING,
@@ -47,7 +46,7 @@ public class Discord {
             ).queue();
 
             Online();
-        } catch (LoginException | InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

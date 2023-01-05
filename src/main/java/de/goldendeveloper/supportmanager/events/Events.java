@@ -11,11 +11,12 @@ import de.goldendeveloper.supportmanager.Main;
 import de.goldendeveloper.supportmanager.utility.Runner;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.ShutdownEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,13 +33,13 @@ public class Events extends ListenerAdapter {
         if (cmd.equalsIgnoreCase(Discord.getCmdSettings)) {
             if (e.getSubcommandName() != null) {
                 if (e.getSubcommandName().equalsIgnoreCase(Discord.getCmdSettingsSubChannel)) {
-                    VoiceChannel voiceChannel = e.getOption("channel").getAsVoiceChannel();
+                    VoiceChannel voiceChannel = e.getOption("channel").getAsChannel().asVoiceChannel();
                     if (voiceChannel != null) {
                         if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
                             if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.TableGuilds)) {
                                 Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.TableGuilds);
                                 if (table.existsColumn(MysqlConnection.colGuild)) {
-                                    if (table.getColumn(MysqlConnection.colGuild).getAll().contains(e.getGuild().getId())) {
+                                    if (table.getColumn(MysqlConnection.colGuild).getAll().getAsString().contains(e.getGuild().getId())) {
                                         table.getRow(table.getColumn(MysqlConnection.colGuild), e.getGuild().getId()).set(table.getColumn(MysqlConnection.colSupChannel), e.getGuild().getId());
                                         e.getInteraction().reply("Der Support Channel wurde erfolgreich gesetzt!").queue();
                                     } else {
@@ -86,30 +87,25 @@ public class Events extends ListenerAdapter {
 
 
     @Override
-    public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
-        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
-            if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.TableGuilds)) {
-                Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.TableGuilds);
-                if (table.existsColumn(MysqlConnection.colSupChannel)) {
-                    if (table.getColumn(MysqlConnection.colSupChannel).getAll().contains(event.getChannelJoined().getId())) {
-                        onJoin(event.getChannelJoined(), event.getEntity());
+    public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
+        if (event.getChannelJoined() != null && event.getChannelLeft() != null) { //Move Event
+            onLeave(event.getChannelLeft());
+            onJoin(event.getChannelJoined(), event.getEntity());
+        } else if (event.getChannelJoined() != null && event.getChannelLeft() == null) {// Join Event
+            if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
+                if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.TableGuilds)) {
+                    Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.TableGuilds);
+                    if (table.existsColumn(MysqlConnection.colSupChannel)) {
+                        if (table.getColumn(MysqlConnection.colSupChannel).getAll().getAsString().contains(event.getChannelJoined().getId())) {
+                            onJoin(event.getChannelJoined(), event.getEntity());
+                        }
                     }
                 }
             }
+        } else if (event.getChannelJoined() == null && event.getChannelLeft() != null) { // Leave Event
+            onLeave(event.getChannelLeft());
         }
     }
-
-    @Override
-    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-        onLeave(event.getChannelLeft());
-    }
-
-    @Override
-    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
-        onLeave(event.getChannelLeft());
-        onJoin(event.getChannelJoined(), event.getEntity());
-    }
-
 
     public static long VoiceChannel = 2123123123123123L;
     public static Role role = Main.getDiscord().getBot().getRoleById("<ID>");
@@ -126,7 +122,7 @@ public class Events extends ListenerAdapter {
                 VoiceChannel channel = Main.getDiscord().getBot().getVoiceChannelById(VoiceChannel);
                 if (channel != null) {
                     channel.upsertPermissionOverride(role).setAllowed(Permission.VOICE_CONNECT).queue();
-                    channel.getManager().setName("✅Support: Geöffnet✅").putPermissionOverride(role, Arrays.asList(Permission.VOICE_CONNECT), null).submit();
+                    channel.getManager().setName("✅Support: Geöffnet✅").putPermissionOverride(role, List.of(Permission.VOICE_CONNECT), null).submit();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -142,7 +138,7 @@ public class Events extends ListenerAdapter {
                 VoiceChannel channel = Main.getDiscord().getBot().getGuildById(DiscordServer).getVoiceChannelById(VoiceChannel);
                 if (channel != null) {
                     channel.upsertPermissionOverride(role).deny(Permission.VOICE_CONNECT).queue();
-                    channel.getManager().setName("⛔Support: Geschlossen⛔").putPermissionOverride(role, null, Arrays.asList(Permission.VOICE_CONNECT)).submit();
+                    channel.getManager().setName("⛔Support: Geschlossen⛔").putPermissionOverride(role, null, List.of(Permission.VOICE_CONNECT)).submit();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -155,7 +151,7 @@ public class Events extends ListenerAdapter {
             if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.TableGuilds)) {
                 Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.TableGuilds);
                 if (table.existsColumn(MysqlConnection.colSupChannel)) {
-                    if (table.getColumn(MysqlConnection.colSupChannel).getAll().contains(joined.getId())) {
+                    if (table.getColumn(MysqlConnection.colSupChannel).getAll().getAsString().contains(joined.getId())) {
                         VoiceChannel ch = joined.getJDA().getVoiceChannelById(joined.getId());
                         if (ch != null) {
                             Category cat = ch.getParentCategory();
@@ -174,7 +170,6 @@ public class Events extends ListenerAdapter {
                                     }
                                 });
                                 member.getUser().openPrivateChannel().queue(channel -> {
-                                    //channel.sendFile(new File("C:\\Users\\Nick\\Pictures\\Discord/Test.gif")).queue();
                                     channel.sendMessage("Ein Teammitglied wurde benachrichtigt, bitte warte einen Moment, es wird sich gleich um dich gekümmert.").queue();
                                 });
                             }

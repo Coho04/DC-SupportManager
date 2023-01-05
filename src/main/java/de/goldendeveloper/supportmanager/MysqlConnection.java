@@ -2,7 +2,6 @@ package de.goldendeveloper.supportmanager;
 
 import de.goldendeveloper.mysql.MYSQL;
 import de.goldendeveloper.mysql.entities.Database;
-import de.goldendeveloper.mysql.entities.MysqlTypes;
 import de.goldendeveloper.mysql.entities.Table;
 
 public class MysqlConnection {
@@ -46,7 +45,7 @@ public class MysqlConnection {
 
     private void addColumn(Table table, String name) {
         if (!table.existsColumn(name)) {
-            table.addColumn(name, MysqlTypes.VARCHAR, 80);
+            table.addColumn(name);
         }
     }
 
