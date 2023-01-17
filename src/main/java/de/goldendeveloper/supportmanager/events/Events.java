@@ -14,6 +14,8 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
@@ -26,6 +28,18 @@ public class Events extends ListenerAdapter {
 
     public List<Long> tempChannels = new ArrayList<>();
     public long Role = 817662233537806367L;
+
+    @Override
+    public void onGuildJoin(GuildJoinEvent e) {
+        Main.getServerCommunicator().addServer(e.getGuild().getId());
+        e.getJDA().getPresence().setActivity(Activity.playing("/help | " + e.getJDA().getGuilds().size() + " Servern"));
+    }
+
+    @Override
+    public void onGuildLeave(GuildLeaveEvent e) {
+        Main.getServerCommunicator().removeServer(e.getGuild().getId());
+        e.getJDA().getPresence().setActivity(Activity.playing("/help | " + e.getJDA().getGuilds().size() + " Servern"));
+    }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {

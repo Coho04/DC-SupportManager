@@ -39,20 +39,21 @@ public class Discord {
                     .addEventListeners(new Events())
                     .setAutoReconnect(true)
                     .build().awaitReady();
-
-            bot.upsertCommand(getCmdSettings, "Legt die Einstellungen für dem SupportManager fest").addSubcommands(
-                    new SubcommandData(getCmdSettingsSubChannel, "Setzt den Support Channel für den Discord Server").addOption(OptionType.CHANNEL, "channel", "Support Audio Channel"),
-                    new SubcommandData(getCmdSettingsSubShutdown, "Schaltet den Discord Bot ab!")
-            ).queue();
-
-            Online();
+            registerCommand();
+            if (Main.getDeployment()) {
+                Online();
+                Main.getServerCommunicator().startBot(bot);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public JDA getBot() {
-        return bot;
+    private void registerCommand() {
+        bot.upsertCommand(getCmdSettings, "Legt die Einstellungen für dem SupportManager fest").addSubcommands(
+                new SubcommandData(getCmdSettingsSubChannel, "Setzt den Support Channel für den Discord Server").addOption(OptionType.CHANNEL, "channel", "Support Audio Channel"),
+                new SubcommandData(getCmdSettingsSubShutdown, "Schaltet den Discord Bot ab!")
+        ).queue();
     }
 
     private void Online() {
@@ -77,5 +78,9 @@ public class Discord {
             throw new RuntimeException(e);
         }
         return properties.getProperty("version");
+    }
+
+    public JDA getBot() {
+        return bot;
     }
 }

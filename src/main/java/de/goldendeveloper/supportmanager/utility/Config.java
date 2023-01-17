@@ -10,8 +10,13 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
 
 public class Config {
 
@@ -22,9 +27,24 @@ public class Config {
     private String MysqlPassword;
     private int MysqlPort;
 
+    private String ServerHostname;
+    private int ServerPort;
+
     public Config() {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        readXML(classloader.getResourceAsStream("Login.xml"));
+        InputStream local = classloader.getResourceAsStream("Login.xml");
+        try {
+            Path path = Files.createTempFile("Login", ".xml");
+            if (local != null && Files.exists(path)) {
+                readXML(local);
+            } else {
+                File file = new File("/home/Golden-Developer/JavaBots/" + this.getProjektName() + "/config/Login.xml");
+                InputStream targetStream = new FileInputStream(file);
+                readXML(targetStream);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void readXML(InputStream inputStream) {
@@ -74,9 +94,39 @@ public class Config {
                     }
                 }
             }
+
+            // Server
+            String hostname = doc.getElementsByTagName("Hostname").item(1).getTextContent();
+            String port = doc.getElementsByTagName("Port").item(1).getTextContent();
+            if (!hostname.isEmpty() || !hostname.isBlank()) {
+                this.ServerHostname = hostname;
+            }
+            if (!port.isEmpty() || !port.isBlank()) {
+                this.ServerPort = Integer.parseInt(port);
+            }
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getProjektVersion() {
+        Properties properties = new Properties();
+        try {
+            properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return properties.getProperty("version");
+    }
+
+    public String getProjektName() {
+        Properties properties = new Properties();
+        try {
+            properties.load(this.getClass().getClassLoader().getResourceAsStream("project.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return properties.getProperty("name");
     }
 
     public String getDiscordWebhook() {
@@ -101,5 +151,13 @@ public class Config {
 
     public String getMysqlUsername() {
         return MysqlUsername;
+    }
+
+    public int getServerPort() {
+        return ServerPort;
+    }
+
+    public String getServerHostname() {
+        return ServerHostname;
     }
 }
