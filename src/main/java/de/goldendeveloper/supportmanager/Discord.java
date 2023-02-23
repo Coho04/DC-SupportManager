@@ -25,7 +25,6 @@ public class Discord {
 
     public Discord(String token) {
         try {
-            String activity = "<BOT-Activity>";
             bot = JDABuilder.createDefault(token)
                     .enableIntents(GatewayIntent.GUILD_MESSAGE_REACTIONS,
                             GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
@@ -35,7 +34,6 @@ public class Discord {
                             GatewayIntent.GUILD_MESSAGE_TYPING, GatewayIntent.GUILD_VOICE_STATES,
                             GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.GUILD_MEMBERS,
                             GatewayIntent.GUILD_MESSAGE_TYPING)
-                    .setActivity(Activity.watching(activity))
                     .addEventListeners(new Events())
                     .setAutoReconnect(true)
                     .build().awaitReady();
@@ -44,6 +42,7 @@ public class Discord {
                 Online();
                 Main.getServerCommunicator().startBot(bot);
             }
+            bot.getPresence().setActivity(Activity.playing("/help | " + bot.getGuilds().size() + " Servern"));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
