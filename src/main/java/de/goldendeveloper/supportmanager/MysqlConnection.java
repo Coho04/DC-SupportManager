@@ -6,7 +6,7 @@ import de.goldendeveloper.mysql.entities.Table;
 
 public class MysqlConnection {
 
-    public static String dbName = "GD-Support-Manager";
+    public static String dbName = "GD-SupportManager";
     public static String TableGuilds = "Guilds";
 
     public static String colGuild = "Guild";
