@@ -3,6 +3,7 @@ package de.goldendeveloper.supportmanager;
 import de.goldendeveloper.mysql.MYSQL;
 import de.goldendeveloper.mysql.entities.Database;
 import de.goldendeveloper.mysql.entities.Table;
+import de.goldendeveloper.supportmanager.errors.ExceptionHandler;
 
 public class MysqlConnection {
 
@@ -22,7 +23,7 @@ public class MysqlConnection {
     private final MYSQL mysql;
 
     public MysqlConnection(String hostname, String username, String password, int port) {
-        mysql = new MYSQL(hostname, username, password, port);
+        mysql = new MYSQL(hostname, username, password, port, new ExceptionHandler());
         if (!mysql.existsDatabase(dbName)) {
             mysql.createDatabase(dbName);
         }

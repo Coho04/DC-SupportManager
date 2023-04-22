@@ -1,16 +1,15 @@
 package de.goldendeveloper.supportmanager;
 
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,100 +31,98 @@ public class ServerCommunicator {
     }
 
     public void startBot(JDA bot) {
-        Socket socket = null;
-        try {
-            socket = new Socket(this.HOSTNAME, this.PORT);
-            OutputStream raus = socket.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(raus, StandardCharsets.UTF_8);
-            JSONObject msg = new JSONObject();
-            msg.put("name", bot.getSelfUser().getName());
-            msg.put("invite", bot.getInviteUrl(Permission.ADMINISTRATOR));
-            msg.put("type", action.START);
-            msg.put("commands", getCommandNameFromCommands(bot.retrieveCommands().complete()));
-            msg.put("server", getGuildIDsFromGuilds(bot));
-            osw.write(msg.toString());
-            osw.flush();
-            osw.close();
-        } catch (UnknownHostException e) {
-            System.out.println("Unknown Host...");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.out.println("IOProbleme...");
-            e.printStackTrace();
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                    System.out.println("Socket geschlossen...");
-                } catch (IOException e) {
-                    System.out.println("Socket konnte nicht geschlossen werden...");
-                    e.printStackTrace();
+        if (Main.getDeployment()) {
+            Socket socket = null;
+            try {
+                socket = new Socket(this.HOSTNAME, this.PORT);
+                OutputStream raus = socket.getOutputStream();
+                OutputStreamWriter osw = new OutputStreamWriter(raus, StandardCharsets.UTF_8);
+                JSONObject msg = new JSONObject();
+                msg.put("name", bot.getSelfUser().getName());
+                msg.put("invite", bot.getInviteUrl(Permission.ADMINISTRATOR));
+                msg.put("image", bot.getSelfUser().getAvatarUrl());
+                msg.put("type", action.START);
+                msg.put("commands", getCommandNameFromCommands(bot.retrieveCommands().complete()));
+                msg.put("server", getGuildIDsFromGuilds(bot));
+                osw.write(msg.toString());
+                osw.flush();
+                osw.close();
+            } catch (Exception e) {
+                Sentry.captureException(e);
+                e.printStackTrace();
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                        System.out.println("Socket geschlossen...");
+                    } catch (Exception e) {
+                        Sentry.captureException(e);
+                        e.printStackTrace();
+                    }
                 }
             }
         }
     }
 
     public void addServer(String guild) {
-        Socket socket = null;
-        try {
-            socket = new Socket(this.HOSTNAME, this.PORT);
-            OutputStream raus = socket.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(raus, StandardCharsets.UTF_8);
-            JSONObject msg = new JSONObject();
-            msg.put("name", Main.getConfig().getProjektName());
-            msg.put("type", action.ADD);
-            msg.put("server", Main.getDiscord().getBot().getGuilds().size());
-            msg.put("guild", guild);
-            osw.write(msg.toString());
-            osw.flush();
-            osw.close();
-        } catch (UnknownHostException e) {
-            System.out.println("Unknown Host...");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.out.println("IOProbleme...");
-            e.printStackTrace();
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                    System.out.println("Socket geschlossen...");
-                } catch (IOException e) {
-                    System.out.println("Socket konnte nicht geschlossen werden...");
-                    e.printStackTrace();
+        if (Main.getDeployment()) {
+            Socket socket = null;
+            try {
+                socket = new Socket(this.HOSTNAME, this.PORT);
+                OutputStream raus = socket.getOutputStream();
+                OutputStreamWriter osw = new OutputStreamWriter(raus, StandardCharsets.UTF_8);
+                JSONObject msg = new JSONObject();
+                msg.put("name", Main.getConfig().getProjektName());
+                msg.put("type", action.ADD);
+                msg.put("server", Main.getDiscord().getBot().getGuilds().size());
+                msg.put("guild", guild);
+                osw.write(msg.toString());
+                osw.flush();
+                osw.close();
+            } catch (Exception e) {
+                Sentry.captureException(e);
+                e.printStackTrace();
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                        System.out.println("Socket geschlossen...");
+                    } catch (Exception e) {
+                        Sentry.captureException(e);
+                        e.printStackTrace();
+                    }
                 }
             }
         }
     }
 
     public void removeServer(String guild) {
-        Socket socket = null;
-        try {
-            socket = new Socket(this.HOSTNAME, this.PORT);
-            OutputStream raus = socket.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(raus, StandardCharsets.UTF_8);
-            JSONObject msg = new JSONObject();
-            msg.put("name", Main.getConfig().getProjektName());
-            msg.put("type", action.REMOVE);
-            msg.put("server", Main.getDiscord().getBot().getGuilds().size());
-            msg.put("guild", guild);
-            osw.write(msg.toString());
-            osw.flush();
-            osw.close();
-        } catch (UnknownHostException e) {
-            System.out.println("Unknown Host...");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.out.println("IOProbleme...");
-            e.printStackTrace();
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                    System.out.println("Socket geschlossen...");
-                } catch (IOException e) {
-                    System.out.println("Socket konnte nicht geschlossen werden...");
-                    e.printStackTrace();
+        if (Main.getDeployment()) {
+            Socket socket = null;
+            try {
+                socket = new Socket(this.HOSTNAME, this.PORT);
+                OutputStream raus = socket.getOutputStream();
+                OutputStreamWriter osw = new OutputStreamWriter(raus, StandardCharsets.UTF_8);
+                JSONObject msg = new JSONObject();
+                msg.put("name", Main.getConfig().getProjektName());
+                msg.put("type", action.REMOVE);
+                msg.put("server", Main.getDiscord().getBot().getGuilds().size());
+                msg.put("guild", guild);
+                osw.write(msg.toString());
+                osw.flush();
+                osw.close();
+            } catch (Exception e) {
+                Sentry.captureException(e);
+                e.printStackTrace();
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                        System.out.println("Socket geschlossen...");
+                    } catch (Exception e) {
+                        Sentry.captureException(e);
+                        e.printStackTrace();
+                    }
                 }
             }
         }

@@ -11,9 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
-import java.io.IOException;
 import java.util.Date;
-import java.util.Properties;
 
 public class Discord {
 
