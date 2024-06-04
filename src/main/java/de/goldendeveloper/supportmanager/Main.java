@@ -7,17 +7,23 @@ import de.goldendeveloper.supportmanager.utility.CustomConfig;
 
 public class Main {
 
-    private static MysqlConnection mysqlConnection;
+    private static MYSQL mysql;
+    private static CustomConfig customConfig;
 
     public static void main(String[] args) {
-        CustomConfig config = new CustomConfig();
-        mysqlConnection = new MysqlConnection(config.getMysqlHostname(), config.getMysqlUsername(), config.getMysqlPassword(), config.getMysqlPort());
+        customConfig = new CustomConfig();
+        mysql = new MYSQL();
         DCBotBuilder dcBotBuilder = new DCBotBuilder(args, true);
         dcBotBuilder.registerEvents(new Events());
         dcBotBuilder.registerCommands(new Settings());
         dcBotBuilder.build();
     }
-    public static MysqlConnection getMysqlConnection() {
-        return mysqlConnection;
+
+    public static MYSQL getMysql() {
+        return mysql;
+    }
+
+    public static CustomConfig getCustomConfig() {
+        return customConfig;
     }
 }
