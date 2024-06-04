@@ -1,8 +1,7 @@
 package de.goldendeveloper.supportmanager.events;
 
-import de.goldendeveloper.mysql.entities.Table;
-import de.goldendeveloper.supportmanager.MysqlConnection;
 import de.goldendeveloper.supportmanager.Main;
+import io.sentry.Sentry;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -10,6 +9,10 @@ import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 public class Events extends ListenerAdapter {
@@ -23,63 +26,34 @@ public class Events extends ListenerAdapter {
             onLeave(event.getChannelLeft());
             onJoin(event.getChannelJoined(), event.getEntity());
         } else if (event.getChannelJoined() != null && event.getChannelLeft() == null) {// Join Event
-            if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
-                if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.TableGuilds)) {
-                    Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.TableGuilds);
-                    if (table.existsColumn(MysqlConnection.colSupChannel) && table.getColumn(MysqlConnection.colSupChannel).getAll().getAsString().contains(event.getChannelJoined().getId())) {
+            try (Connection connection = Main.getMysql().getSource().getConnection()) {
+                String selectQuery = "SELECT count(*) FROM Guilds WHERE Support_channel = ?;";
+                PreparedStatement statement = connection.prepareStatement(selectQuery);
+                statement.execute("USE `GD-SupportManager`");
+                statement.setLong(1, event.getChannelJoined().getIdLong());
+                try (ResultSet rs = statement.executeQuery()) {
+                    if (rs.next()) {
                         onJoin(event.getChannelJoined(), event.getEntity());
                     }
                 }
+            } catch (SQLException exception) {
+                System.out.println(exception.getMessage());
+                Sentry.captureException(exception);
             }
         } else if (event.getChannelJoined() == null && event.getChannelLeft() != null) { // Leave Event
             onLeave(event.getChannelLeft());
         }
     }
 
-//    public static long voiceChannel = 2123123123123123L;
-//    public static Role role = Main.getDiscord().getBot().getRoleById("<ID>");
-//    public static long discordServer = 123456789L;
-
-/*    public static void run() {
-        Calendar timeOfDay = Calendar.getInstance();
-        timeOfDay.set(Calendar.HOUR_OF_DAY, 15);
-        timeOfDay.set(Calendar.MINUTE, 11);
-        timeOfDay.set(Calendar.SECOND, 0);
-
-        new Runner(timeOfDay, () -> {
-            try {
-                VoiceChannel channel = Main.getDiscord().getBot().getVoiceChannelById(voiceChannel);
-                if (channel != null) {
-                    channel.upsertPermissionOverride(role).setAllowed(Permission.VOICE_CONNECT).queue();
-                    channel.getManager().setName("✅Support: Geöffnet✅").putPermissionOverride(role, List.of(Permission.VOICE_CONNECT), null).submit();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }, "daily-support-open");
-
-        timeOfDay.set(Calendar.HOUR_OF_DAY, 15);
-        timeOfDay.set(Calendar.MINUTE, 12);
-        timeOfDay.set(Calendar.SECOND, 0);
-
-        new Runner(timeOfDay, () -> {
-            try {
-                VoiceChannel channel = Main.getDiscord().getBot().getGuildById(discordServer).getVoiceChannelById(voiceChannel);
-                if (channel != null) {
-                    channel.upsertPermissionOverride(role).deny(Permission.VOICE_CONNECT).queue();
-                    channel.getManager().setName("⛔Support: Geschlossen⛔").putPermissionOverride(role, null, List.of(Permission.VOICE_CONNECT)).submit();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }, "daily-support-close");
-    }*/
 
     public void onJoin(AudioChannel joined, Member member) {
-        if (Main.getMysqlConnection().getMysql().existsDatabase(MysqlConnection.dbName)) {
-            if (Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).existsTable(MysqlConnection.TableGuilds)) {
-                Table table = Main.getMysqlConnection().getMysql().getDatabase(MysqlConnection.dbName).getTable(MysqlConnection.TableGuilds);
-                if (table.existsColumn(MysqlConnection.colSupChannel) && table.getColumn(MysqlConnection.colSupChannel).getAll().getAsString().contains(joined.getId())) {
+        try (Connection connection = Main.getMysql().getSource().getConnection()) {
+            String selectQuery = "SELECT count(*) FROM Guilds WHERE Support_channel = ?;";
+            PreparedStatement statement = connection.prepareStatement(selectQuery);
+            statement.execute("USE `GD-SupportManager`");
+            statement.setLong(1, joined.getIdLong());
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
                     VoiceChannel ch = joined.getJDA().getVoiceChannelById(joined.getId());
                     if (ch != null) {
                         Category cat = ch.getParentCategory();
@@ -102,11 +76,14 @@ public class Events extends ListenerAdapter {
                     }
                 }
             }
+        } catch (SQLException exception) {
+            System.out.println(exception.getMessage());
+            Sentry.captureException(exception);
         }
     }
 
     public void onLeave(AudioChannel channel) {
-        if (channel.getMembers().size() == 0 && tempChannels.contains(channel.getIdLong())) {
+        if (channel.getMembers().isEmpty() && tempChannels.contains(channel.getIdLong())) {
             tempChannels.remove(channel.getIdLong());
             channel.delete().queue();
         }
