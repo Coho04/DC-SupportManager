@@ -13,21 +13,7 @@ public class MYSQL {
 
     private final HikariDataSource source;
 
-    public static String dbName = "GD-SupportManager";
-    public static String TableGuilds = "Guilds";
-
-    public static String colGuild = "Guild";
-    public static String colSupChannel = "Guild";
-
-    public static String colMon = "Montag";
-    public static String colDie = "Dienstag";
-    public static String colMit = "Mittwoch";
-    public static String colDon = "Donnerstag";
-    public static String colFre = "Freitag";
-    public static String colSam = "Samstag";
-    public static String colSon = "Sonntag";
-
-    public MYSQL(String hostname, String username, String password, int port) {
+    public MYSQL() {
         this.source = getConfig();
         try {
             Statement statement = this.source.getConnection().createStatement();

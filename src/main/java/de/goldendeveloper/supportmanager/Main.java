@@ -12,7 +12,7 @@ public class Main {
 
     public static void main(String[] args) {
         customConfig = new CustomConfig();
-        mysql = new MYSQL(customConfig.getMysqlHostname(), customConfig.getMysqlUsername(), customConfig.getMysqlPassword(), customConfig.getMysqlPort());
+        mysql = new MYSQL();
         DCBotBuilder dcBotBuilder = new DCBotBuilder(args, true);
         dcBotBuilder.registerEvents(new Events());
         dcBotBuilder.registerCommands(new Settings());
