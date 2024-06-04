@@ -72,10 +72,6 @@
 
     <repositories>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <repository>
             <id>golden-developer</id>
             <name>Golden-Developer</name>
             <url>https://nexus.golden-developer.de/repository/DCB-CORE/</url>
@@ -88,7 +84,6 @@
             <artifactId>DCB-Core</artifactId>
             <version>1.9.3</version>
         </dependency>
-
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
