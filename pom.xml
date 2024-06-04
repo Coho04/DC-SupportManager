@@ -72,9 +72,8 @@
 
     <repositories>
         <repository>
-            <id>golden-developer</id>
-            <name>Golden-Developer</name>
-            <url>https://nexus.golden-developer.de/repository/DCB-CORE/</url>
+            <id>Golden-Developer</id>
+            <url>https://nexus.golden-developer.de/repository/maven-public/</url>
         </repository>
     </repositories>
 
