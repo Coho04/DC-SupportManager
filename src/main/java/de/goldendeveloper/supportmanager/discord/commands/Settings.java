@@ -16,15 +16,32 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * This class represents the settings command for the SupportManager.
+ * It allows to set the support channel for the Discord server.
+ */
 public class Settings implements CommandInterface {
 
     public static String getCmdSettingsSubChannel = "support-voicechannel";
 
+    /**
+     * This method returns the command data for the settings command.
+     * It defines the slash command and its subcommands.
+     *
+     * @return CommandData for the settings command
+     */
     @Override
     public CommandData commandData() {
         return Commands.slash("settings", "Legt die Einstellungen für dem SupportManager fest").addSubcommands(new SubcommandData(getCmdSettingsSubChannel, "Setzt den Support Channel für den Discord Server").addOption(OptionType.CHANNEL, "channel", "Support Audio Channel"));
     }
 
+    /**
+     * This method handles the execution of the slash command.
+     * It checks if the subcommand is for setting the support voice channel and if so, it sets the channel.
+     *
+     * @param e     The SlashCommandInteractionEvent that triggered the command
+     * @param dcBot The DCBot instance that is running the command
+     */
     @Override
     public void runSlashCommand(SlashCommandInteractionEvent e, DCBot dcBot) {
         if (e.getSubcommandName() != null) {

@@ -15,11 +15,26 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+/**
+ * This class handles events related to voice channels in a guild.
+ */
 public class Events extends ListenerAdapter {
 
-    public List<Long> tempChannels = new ArrayList<>();
-    public long Role = 817662233537806367L;
+    /**
+     * List of temporary channels created by the bot.
+     */
+    private final List<Long> tempChannels = new ArrayList<>();
 
+    /**
+     * Role ID for the role to be notified when a member joins a support channel.
+     */
+    private final long Role = 817662233537806367L;
+
+    /**
+     * This method is triggered when a member joins, leaves or moves between voice channels in a guild.
+     *
+     * @param event The event that triggered this method.
+     */
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         if (event.getChannelJoined() != null && event.getChannelLeft() != null) { //Move Event
@@ -45,7 +60,14 @@ public class Events extends ListenerAdapter {
         }
     }
 
-
+    /**
+     * This method is triggered when a member joins a voice channel.
+     * It checks if the joined channel is a support channel and if so, creates a new temporary channel for the member,
+     * moves the member to the new channel and sends a notification to all members with the specified role.
+     *
+     * @param joined The channel that the member joined.
+     * @param member The member that joined the channel.
+     */
     public void onJoin(AudioChannel joined, Member member) {
         try (Connection connection = Main.getMysql().getSource().getConnection()) {
             String selectQuery = "SELECT count(*) FROM Guilds WHERE Support_channel = ?;";
@@ -82,6 +104,12 @@ public class Events extends ListenerAdapter {
         }
     }
 
+    /**
+     * This method is triggered when a member leaves a voice channel.
+     * It checks if the left channel is a temporary channel and if so, deletes the channel.
+     *
+     * @param channel The channel that the member left.
+     */
     public void onLeave(AudioChannel channel) {
         if (channel.getMembers().isEmpty() && tempChannels.contains(channel.getIdLong())) {
             tempChannels.remove(channel.getIdLong());
