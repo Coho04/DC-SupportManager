@@ -1,9 +1,9 @@
 package de.goldendeveloper.supportmanager;
 
-import de.goldendeveloper.dcbcore.DCBotBuilder;
 import de.goldendeveloper.supportmanager.discord.commands.Settings;
 import de.goldendeveloper.supportmanager.events.Events;
 import de.goldendeveloper.supportmanager.utility.CustomConfig;
+import io.github.coho04.dcbcore.DCBotBuilder;
 
 public class Main {
 
