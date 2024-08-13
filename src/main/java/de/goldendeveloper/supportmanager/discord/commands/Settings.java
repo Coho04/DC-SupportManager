@@ -51,7 +51,7 @@ public class Settings implements CommandInterface {
                     try (Connection connection = Main.getMysql().getSource().getConnection()) {
                         String selectQuery = "SELECT count(*) FROM Guilds WHERE Guild = ?;";
                         PreparedStatement statement = connection.prepareStatement(selectQuery);
-                        statement.execute("USE `GD-SupportManager`");
+                        statement.execute("USE `support_manager_db`");
                         statement.setLong(1, e.getGuild().getIdLong());
                         try (ResultSet rs = statement.executeQuery()) {
                             if (rs.next()) {

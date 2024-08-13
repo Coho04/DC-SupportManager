@@ -27,8 +27,8 @@ public class MYSQL {
         this.source = getConfig();
         try {
             Statement statement = this.source.getConnection().createStatement();
-            statement.execute("CREATE DATABASE IF NOT EXISTS `GD-SupportManager`;");
-            statement.execute("USE `GD-Entertainment`;");
+            statement.execute("CREATE DATABASE IF NOT EXISTS `support_manager_db`;");
+            statement.execute("USE `support_manager_db`;");
             statement.execute("CREATE TABLE IF NOT EXISTS Guilds (id INT AUTO_INCREMENT NOT NULL PRIMARY KEY, " +
                     "Montag VARCHAR(255) NULL," +
                     "Dienstag VARCHAR(255) NULL," +
