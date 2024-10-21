@@ -44,7 +44,7 @@ public class Events extends ListenerAdapter {
             try (Connection connection = Main.getMysql().getSource().getConnection()) {
                 String selectQuery = "SELECT count(*) FROM Guilds WHERE Support_channel = ?;";
                 PreparedStatement statement = connection.prepareStatement(selectQuery);
-                statement.execute("USE `support_manager_db`");
+                statement.execute("USE `" + Main.getCustomConfig().getMysqlDatabase() + "`");
                 statement.setLong(1, event.getChannelJoined().getIdLong());
                 try (ResultSet rs = statement.executeQuery()) {
                     if (rs.next()) {
@@ -72,7 +72,7 @@ public class Events extends ListenerAdapter {
         try (Connection connection = Main.getMysql().getSource().getConnection()) {
             String selectQuery = "SELECT count(*) FROM Guilds WHERE Support_channel = ?;";
             PreparedStatement statement = connection.prepareStatement(selectQuery);
-            statement.execute("USE `support_manager_db`");
+            statement.execute("USE `" + Main.getCustomConfig().getMysqlDatabase() + "`");
             statement.setLong(1, joined.getIdLong());
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {

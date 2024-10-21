@@ -43,6 +43,7 @@ public class Main {
 
         // Build the bot
         dcBotBuilder.build();
+        System.out.println("Java application started successfully");
     }
 
     /**
